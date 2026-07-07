@@ -1,0 +1,17 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+pydantic-settings==2.7.1
+email-validator==2.2.0
+SQLAlchemy==2.0.36
+psycopg2-binary==2.9.10
+passlib==1.7.4
+bcrypt==4.0.1
+python-jose[cryptography]==3.3.0
+httpx==0.28.1
+PyMuPDF==1.25.1
+pdfplumber==0.11.5
+qdrant-client==1.12.2
+redis==5.2.1
+rq==2.0.0
+orjson==3.10.13
