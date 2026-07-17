@@ -1,5 +1,7 @@
 # Local Intelligent LMS
 
+YouTube Link:- https://youtu.be/OT_tZVG7PaI?si=fymGlFuaon_3ZI87
+
 A local-first Intelligent Learning Management System for research paper Q&A.
 
 This application allows a user to upload a research paper PDF, process it locally, create embeddings, store chunks in a vector database, and ask questions based only on the uploaded PDF.
