@@ -147,6 +147,132 @@ async def tutor_question(
     return await answer_question(db, paper, user.id, payload.question, mode="tutor")
 
 
+@router.post("/{paper_id}/accreditation-agent", response_model=AnswerOut)
+async def run_accreditation_agent(
+    paper_id: str,
+    payload: AskRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> Answer:
+    paper = ensure_owned_paper(db, paper_id, user)
+    if paper.status != "ready":
+        raise HTTPException(status_code=409, detail="Document is not ready for accreditation analysis")
+
+    criterion = payload.question.strip()
+    if not criterion:
+        raise HTTPException(status_code=400, detail="An accreditation criterion is required")
+
+    agent_task = f"""
+Accreditation criterion under review:
+{criterion}
+
+Act as the AccrediLens Accreditation Evidence Agent. Autonomously complete these stages using
+only evidence contained in the uploaded document:
+
+1. EVIDENCE DISCOVERY
+Identify document statements relevant to the criterion.
+
+2. CRITERION MAPPING
+Explain how the retrieved evidence supports, partially supports, or does not support the criterion.
+
+3. GAP ANALYSIS
+Identify missing, weak, ambiguous, outdated, or unverifiable evidence. Do not invent missing facts.
+
+4. RECOMMENDED ACTION
+State the specific institutional document, metric, approval, record, or clarification needed to close
+each important gap.
+
+5. HUMAN REVIEW
+Give a proposed decision of Supported, Partially Supported, or Insufficient Evidence, followed by:
+Human approval status: PENDING
+
+Return exactly these headings:
+Evidence Found
+Criterion Mapping
+Evidence Gaps
+Recommended Actions
+Proposed Decision
+Write exactly one classification: Supported, Partially Supported, or Insufficient Evidence. Never leave this section blank.
+
+Human Review Status
+Write exactly: PENDING
+""".strip()
+
+    result = await answer_question(
+        db,
+        paper,
+        user.id,
+        agent_task,
+        mode="agent",
+    )
+
+    # Guarantee that the agent always returns a visible decision.
+    import re
+
+    decision_pattern = (
+        r"Proposed Decision\s*:?\s*"
+        r"(Supported|Partially Supported|Insufficient Evidence)\b"
+    )
+    decision_match = re.search(
+        decision_pattern,
+        result.answer,
+        flags=re.IGNORECASE,
+    )
+
+    if not decision_match:
+        analysis_text = result.answer.lower()
+
+        insufficient_cues = (
+            "no relevant evidence",
+            "no supporting evidence",
+            "does not provide evidence",
+            "unable to identify evidence",
+        )
+        partial_cues = (
+            "missing",
+            "lack of",
+            "lacks ",
+            "insufficient detail",
+            "not provided",
+            "not substantiated",
+            "evidence gap",
+        )
+
+        if any(cue in analysis_text for cue in insufficient_cues):
+            decision = "Insufficient Evidence"
+        elif any(cue in analysis_text for cue in partial_cues):
+            decision = "Partially Supported"
+        else:
+            decision = "Supported"
+
+        replacement = (
+            f"Proposed Decision\n{decision}\n\n"
+            "Human Review Status"
+        )
+
+        updated_answer, replacements = re.subn(
+            r"Proposed Decision\s*:?\s*Human Review Status",
+            replacement,
+            result.answer,
+            count=1,
+            flags=re.IGNORECASE,
+        )
+
+        if replacements == 0:
+            updated_answer = (
+                result.answer.rstrip()
+                + f"\n\nProposed Decision\n{decision}"
+                + "\n\nHuman Review Status\nPENDING"
+            )
+
+        result.answer = updated_answer
+        db.add(result)
+        db.commit()
+        db.refresh(result)
+
+    return result
+
+
 @router.get("/{paper_id}/answers", response_model=list[AnswerOut])
 def paper_answers(paper_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)) -> list[Answer]:
     paper = ensure_owned_paper(db, paper_id, user)

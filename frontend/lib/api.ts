@@ -87,6 +87,11 @@ export const api = {
     request<Answer>(`/papers/${paperId}/ask`, { method: "POST", body: JSON.stringify({ question }) }),
   tutor: (paperId: string, question: string) =>
     request<Answer>(`/papers/${paperId}/tutor`, { method: "POST", body: JSON.stringify({ question }) }),
+  accreditationAgent: (paperId: string, criterion: string) =>
+    request<Answer>(`/papers/${paperId}/accreditation-agent`, {
+      method: "POST",
+      body: JSON.stringify({ question: criterion })
+    }),
   answers: (paperId: string) => request<Answer[]>(`/papers/${paperId}/answers`),
   answerSources: (answerId: string) => request<Source[]>(`/answers/${answerId}/sources`)
 };

@@ -158,7 +158,11 @@ async def answer_question(db: Session, paper: Paper, user_id: str, question_text
         for point in results
         if point.payload
     ]
-    evidence = rerank(question_text, evidence)[: settings.final_context_k]
+    evidence = [
+        item
+        for item in rerank(question_text, evidence)
+        if item.score >= settings.similarity_threshold
+    ][: settings.final_context_k]
 
     if len(evidence) < settings.sufficiency_min_sources or not evidence or evidence[0].score < settings.similarity_threshold:
         answer = Answer(

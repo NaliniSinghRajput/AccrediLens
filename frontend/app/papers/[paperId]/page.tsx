@@ -14,6 +14,8 @@ export default function PaperDetailPage({ params }: { params: { paperId: string 
   const [error, setError] = useState("");
   const [asking, setAsking] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [criterion, setCriterion] = useState("");
+  const [runningAgent, setRunningAgent] = useState(false);
 
   async function load() {
     const nextPaper = await api.getPaper(params.paperId);
@@ -75,12 +77,38 @@ export default function PaperDetailPage({ params }: { params: { paperId: string 
     }
   }
 
+
+  async function runAccreditationAgent(event: FormEvent) {
+    event.preventDefault();
+    if (!criterion.trim()) return;
+
+    setRunningAgent(true);
+    setError("");
+
+    try {
+      const response = await api.accreditationAgent(
+        params.paperId,
+        criterion
+      );
+      setAnswers((current) => [response, ...current]);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Accreditation analysis failed"
+      );
+    } finally {
+      setRunningAgent(false);
+    }
+  }
+
+
   return (
     <AuthGuard>
       {!paper && <p className="muted">Loading paper...</p>}
       {paper && (
-        <div className="grid two">
-          <section className="grid">
+        <div className="grid two" style={{ alignItems: "start" }}>
+          <section className="grid" style={{ alignContent: "start" }}>
             <div className="panel">
               <StatusBadge status={paper.status} />
               <h1 style={{ marginTop: 12 }}>{paper.title || paper.original_filename}</h1>
@@ -95,6 +123,35 @@ export default function PaperDetailPage({ params }: { params: { paperId: string 
                 </button>
               )}
             </div>
+
+            {paper.status === "ready" && (
+          <section className="panel">
+            <h2>Accreditation Evidence Agent</h2>
+            <p className="muted">
+              Map document evidence to an accreditation criterion, identify
+              gaps, and generate actions for human review.
+            </p>
+
+            <form onSubmit={runAccreditationAgent}>
+              <label>
+                Accreditation criterion
+                <textarea
+                  value={criterion}
+                  onChange={(event) => setCriterion(event.target.value)}
+                  placeholder="Example: Assess the evidence for NBA Criterion 3 - Course Outcomes and Program Outcomes attainment."
+                  required
+                />
+              </label>
+
+              <button disabled={runningAgent}>
+                {runningAgent
+                  ? "Agent analysing evidence..."
+                  : "Run Accreditation Agent"}
+              </button>
+            </form>
+          </section>
+        )}
+
 
             {paper.status === "ready" && (
               <section className="panel">
@@ -113,13 +170,19 @@ export default function PaperDetailPage({ params }: { params: { paperId: string 
                 </form>
               </section>
             )}
-            {error && <p className="error">{error}</p>}
+        {error && <p className="error">{error}</p>}
           </section>
 
           <aside className="grid">
             <h2>Answer History</h2>
             {answers.length === 0 && <p className="muted">No answers yet.</p>}
-            {answers.map((answer) => <AnswerCard answer={answer} key={answer.id} />)}
+            {answers.map((answer, index) => (
+              <AnswerCard
+                answer={answer}
+                defaultOpen={index === 0}
+                key={answer.id}
+              />
+            ))}
           </aside>
         </div>
       )}
