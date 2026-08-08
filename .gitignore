@@ -18,6 +18,11 @@
 *.tsbuildinfo
 dist/
 
+# Browser-test output
+**/playwright-report/
+**/test-results/
+**/blob-report/
+
 # Runtime data
 backend/storage/uploads/*
 !backend/storage/uploads/.gitkeep
