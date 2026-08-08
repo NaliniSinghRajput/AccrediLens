@@ -16,9 +16,9 @@ concurrency:
 
 jobs:
   validate:
-    name: Build and validate
+    name: Build, validate and smoke test
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Check out repository
@@ -88,3 +88,16 @@ jobs:
           NEXT_PUBLIC_API_BASE_URL: http://127.0.0.1:8000
           NEXT_TELEMETRY_DISABLED: "1"
         run: npm run build
+
+      - name: Install Playwright
+        working-directory: frontend
+        run: |
+          npm install --no-save --no-package-lock @playwright/test@1.49.1
+          npx playwright install --with-deps chromium
+
+      - name: Run Playwright browser smoke tests
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_BASE_URL: http://127.0.0.1:8000
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: npx playwright test
