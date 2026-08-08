@@ -721,3 +721,46 @@ Do not use this password for any real online account.
 For internal local development and research use.
 
 Add a formal license later before public release.
+## Quick start
+
+### Requirements
+
+- Python 3.11+
+- Node.js 20+ and npm
+- Docker Desktop with Docker Compose
+- PostgreSQL, Redis, and Qdrant
+- Git
+
+### Backend
+
+    cd backend
+    python -m venv .venv
+    .\.venv\Scripts\Activate.ps1
+    pip install -r requirements.txt
+    python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+
+Set `FRONTEND_ORIGIN=http://localhost:3001` in the backend environment.
+
+### Frontend
+
+Create `frontend/.env.local` containing:
+
+    NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
+
+Then run:
+
+    cd frontend
+    npm install
+    npm run dev -- --port 3001
+
+Open http://localhost:3001.
+
+### Demo PDF
+
+Use the included [demo evidence PDF](docs/demo-evidence.pdf) to test document ingestion.
+
+### Models and sensitive files
+
+Large model weights are not committed. Provision them separately when required. Never commit `.env` files, API keys, databases, uploaded evidence, or user information.
+
+If backend port 8000 is occupied, run it on port 8001 and change `NEXT_PUBLIC_API_BASE_URL` accordingly.

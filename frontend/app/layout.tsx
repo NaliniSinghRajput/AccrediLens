@@ -1,24 +1,25 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { AppHeader } from "@/components/AppHeader";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Local Intelligent LMS",
-  description: "Local-first PDF grounded LMS"
+  title: {
+    default: "AccrediLens",
+    template: "%s | AccrediLens",
+  },
+  description:
+    "AI-powered accreditation evidence intelligence for traceable institutional review.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en">
       <body>
-        <header className="topbar">
-          <Link href="/dashboard" className="brand">Local Intelligent LMS</Link>
-          <nav>
-            <Link href="/upload">Upload</Link>
-            <Link href="/dashboard">Library</Link>
-            <Link href="/history">History</Link>
-          </nav>
-        </header>
+        <AppHeader />
         <main className="shell">{children}</main>
       </body>
     </html>
