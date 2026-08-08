@@ -15,7 +15,7 @@ function Stop-Port {
     }
 }
 
-Write-Host "Starting Local Intelligent LMS..." -ForegroundColor Cyan
+Write-Host "Starting AccrediLens..." -ForegroundColor Cyan
 
 Set-Location $ProjectRoot
 
@@ -23,6 +23,7 @@ Write-Host "Cleaning old LMS frontend/backend processes..." -ForegroundColor Yel
 Stop-Port 3000
 Stop-Port 3001
 Stop-Port 8000
+Stop-Port 8001
 
 Get-CimInstance Win32_Process |
     Where-Object {
@@ -81,19 +82,19 @@ Start-Process powershell.exe -ArgumentList @(
 
 Start-Sleep -Seconds 2
 
-Write-Host "Starting frontend on http://localhost:3000 ..." -ForegroundColor Yellow
+Write-Host "Starting frontend on http://localhost:3001 ..." -ForegroundColor Yellow
 Start-Process powershell.exe -ArgumentList @(
     "-NoExit",
     "-ExecutionPolicy", "Bypass",
     "-Command",
-    "cd '$Frontend'; npm.cmd run dev -- -p 3000"
+    "cd '$Frontend'; npm.cmd run dev -- --port 3001"
 )
 
 Start-Sleep -Seconds 8
-Start-Process "http://localhost:3000"
+Start-Process "http://localhost:3001"
 
 Write-Host ""
-Write-Host "Local Intelligent LMS started successfully." -ForegroundColor Green
-Write-Host "Frontend: http://localhost:3000"
+Write-Host "AccrediLens started successfully." -ForegroundColor Green
+Write-Host "Frontend: http://localhost:3001"
 Write-Host "Backend:  http://localhost:8000/health"
 Write-Host "Ollama:   http://localhost:11434"
