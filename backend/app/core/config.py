@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "Local Intelligent LMS"
+    app_name: str = "AccrediLens"
     environment: str = "development"
 
     database_url: str = "postgresql+psycopg2://lms:lms_password@localhost:5432/intelligent_lms"
@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     similarity_threshold: float = 0.32
     sufficiency_min_sources: int = 1
 
-    frontend_origin: str = "http://localhost:3000"
+    frontend_origin: str = "http://localhost:3001"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
