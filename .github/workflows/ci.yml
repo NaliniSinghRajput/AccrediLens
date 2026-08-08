@@ -40,7 +40,7 @@ jobs:
               [ref]$errors
             ) | Out-Null
             if ($errors.Count -gt 0) {
-              $errors | ForEach-Object { Write-Error "$path: $_" }
+              $errors | ForEach-Object { Write-Error "${path}: $_" }
               $failed = $true
             }
           }
