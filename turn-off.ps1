@@ -1,6 +1,6 @@
 $ProjectRoot = $PSScriptRoot
 
-Write-Host "Stopping Local Intelligent LMS..." -ForegroundColor Cyan
+Write-Host "Stopping AccrediLens..." -ForegroundColor Cyan
 
 function Stop-Port {
     param([int]$Port)
@@ -19,6 +19,7 @@ Write-Host "Stopping frontend, backend, and worker..." -ForegroundColor Yellow
 Stop-Port 3000
 Stop-Port 3001
 Stop-Port 8000
+Stop-Port 8001
 
 Get-CimInstance Win32_Process |
     Where-Object {
@@ -54,4 +55,4 @@ Write-Host "Stopping Docker services..." -ForegroundColor Yellow
 docker compose down
 
 Write-Host ""
-Write-Host "Local Intelligent LMS stopped successfully." -ForegroundColor Green
+Write-Host "AccrediLens stopped successfully." -ForegroundColor Green
