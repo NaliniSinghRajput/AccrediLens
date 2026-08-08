@@ -1,38 +1,37 @@
+# Environment and secrets
 .env
-.venv/
-node_modules/
-.next/
-dist/
-__pycache__/
-*.pyc
-backend/storage/uploads/*
-!backend/storage/uploads/.gitkeep
-
-backend/.env
-frontend/.env.local
 .env.local
-backend/.venv/
-frontend/node_modules/
-frontend/.next/
-backend/storage/uploads/*
-!backend/storage/uploads/.gitkeep
-*-backup
-*.bak
-*.tsbuildinfo
 .env.*
 !.env.example
 **/.env
 **/.env.local
+
+# Python
 **/.venv/
 **/venv/
+**/__pycache__/
+*.py[cod]
+
+# Node / Next.js
 **/node_modules/
 **/.next/
-**/__pycache__/
+*.tsbuildinfo
+dist/
+
+# Runtime data
+backend/storage/uploads/*
+!backend/storage/uploads/.gitkeep
 *.log
 *.sqlite3
 *.db
+
+# Models and large generated artifacts
 models/
 *.pt
 *.pth
 *.onnx
 *.safetensors
+
+# Backups
+*-backup
+*.bak
